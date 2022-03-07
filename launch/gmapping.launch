@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0.20 0 0 0 0 0 base_link laser 50" />
+    <!-- <include file="$(find silbot3_bringup)/launch/includes/3dsensor_to_laser.xml"/> -->
+    <node name="sick_tim" pkg="sick_tim" type="sick_tim310s01" respawn="true"/>
+    <include file="$(find silbot3_localization)/launch/includes/gmapping_node.xml"/>
+</launch>
+

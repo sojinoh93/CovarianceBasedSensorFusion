@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Global sensors -->
+    <node pkg="silbot3_localization" type="pub_uwb.py" name="pub_uwb"/>
+    <node pkg="silbot3_localization" type="pub_optitrack.py" name="pub_optitrack"/>
+    
+    <!-- Scan sensors -->
+    <!-- <node name="sick_tim" pkg="sick_tim" type="sick_tim310s01" respawn="true" ns="sick"/> -->
+    <include file="$(find silbot3_bringup)/launch/includes/3dsensor_to_laser.xml"/>
+
+    <!-- Scan sensors -->
+    <node pkg="silbot3_localization" type="localize_eval.py" name="localize"/> 
+    <node pkg="amcl" type="amcl" name="amcl" respawn="false" args="scan:=scan">
+        <rosparam file="$(find silbot3_localization)/launch/param/amcl.yaml" command="load" />
+        <!-- Apply custom tf broadcast -->
+        <param name="tf_broadcast" value="false"/>
+    </node>
+    
+    <!-- Navigation -->
+    <node name="navigation" pkg="silbot3_navigation" type="silbot3_navigation" />
+    <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0.20 0 0 0 0 0 base_link laser 50" />
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find silbot3_bringup)/param/navigation/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find silbot3_bringup)/param/navigation/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find silbot3_bringup)/param/navigation/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find silbot3_bringup)/param/navigation/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find silbot3_bringup)/param/navigation/dwa_local_planner_params.yaml" command="load" />
+        <rosparam file="$(find silbot3_bringup)/param/navigation/move_base_params.yaml" command="load" />
+        <rosparam file="$(find silbot3_bringup)/param/navigation/global_planner_params.yaml" command="load" />
+        <rosparam file="$(find silbot3_bringup)/param/navigation/navfn_global_planner_params.yaml" command="load" />
+    </node>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find silbot3_bringup)/map/cad_map.yaml" />
+
+    <!-- Plot paths -->
+    <node name="path_ekf_plotter" type="path_ekf_plotter.py" pkg="odom_to_trajectory"/>  
+    <node name="path_uwb_plotter" type="path_uwb_plotter.py" pkg="odom_to_trajectory"/>
+    <node name="path_opti_plotter" type="path_opti_plotter.py" pkg="odom_to_trajectory"/>
+
+</launch>

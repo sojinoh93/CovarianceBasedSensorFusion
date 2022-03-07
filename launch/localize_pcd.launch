@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+    <node name="core" pkg="silbot3_core" type="silbot3_core" respawn="true">
+        <rosparam file="$(find silbot3_core)/param/core.yaml" command="load" />
+    </node>
+    <node pkg="silbot3_localization" type="localize_pcd.py" name="localize"/>
+</launch>
